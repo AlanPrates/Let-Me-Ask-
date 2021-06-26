@@ -3,71 +3,63 @@ import { database } from "../services/firebase"
 import { useAuth } from "./useAuth"
 
 type FirebaseQuestions = Record<string, {
-    author: {
-        name: string;
-        avatar: string;
-    }
-    content: string;
-    isAnswered: boolean;
-    isHighLighted: boolean;
-    likes: Record<string, {
-        authorId: string
-    }>;
+  author: {
+    name: string,
+    avatar: string
+  },
+  content: string;
+  isAnswered: boolean,
+  isHighlighted: boolean;
+  likes: Record<string, {
+    authorId: string;
+  }>
 }>
 
-
 type QuestionType = {
-    id: string,
-    author: {
-        name: string;
-        avatar: string;
-    }
-    content: string;
-    isAnswered: boolean;
-    isHighLighted: boolean;
-    likeCount: number;
-    likeId: string | undefined;
+  id: string,
+  author: {
+    name: string,
+    avatar: string
+  },
+  content: string;
+  isAnswered: boolean,
+  isHighlighted: boolean,
+  likeCount: number,
+  likeId: string | undefined,
 }
 
 export function useRoom(roomId: string) {
-    const { user } = useAuth()
-    const [questions, setQuestions] = useState<QuestionType[]>([])
-    const [title, setTitle] = useState('')
+  const { user } = useAuth()
+  const [questions ,setQuestions] = useState<QuestionType[]>([])
+  const [title, setTitle] = useState()
 
-    // Get questions in databse -> firebase documentation
-    useEffect(() => {
+  useEffect(() => {
+    const roomRef = database.ref(`rooms/${roomId}`)
 
-        const roomRef = database.ref(`rooms/${roomId}`)
+    roomRef.on('value', room => {
+      const databaseRoom = room.val()
+      const firebaseQuestions: FirebaseQuestions = databaseRoom.questions ?? {};
 
-        roomRef.on('value', room => {
-            // Take the questions from the room and type them.
-            const databaseRoom = room.val()
-
-            const firebaseQuestions: FirebaseQuestions = databaseRoom.questions ?? {}
-
-            const parsedQuestions = Object.entries(firebaseQuestions).map(([key, value]) => {
-                return {
-                    id: key,
-                    content: value.content,
-                    author: value.author,
-                    isHighLighted: value.isHighLighted,
-                    isAnswered: value.isAnswered,
-                    likeCount: Object.values(value.likes ?? {}).length,
-                    likeId: Object.entries(value.likes ?? {}).find(([key, likes]) => likes.authorId === user?.id)?.[0],
-                }
-            })
-
-            setTitle(databaseRoom.title)
-            setQuestions(parsedQuestions)
-        })
-
-        return () => {
-            roomRef.off('value');
+      const parsedQuestions = Object.entries(firebaseQuestions).map( ([key, value]) => {
+        return {
+          id: key,
+          content: value.content,
+          author: value.author,
+          isHighlighted: value.isHighlighted,
+          isAnswered: value.isAnswered,
+          likeCount: Object.values(value.likes ?? {}).length,
+          likeId: Object.entries(value.likes ?? {}).find(([key, like]) =>  like.authorId === user?.id)?.[0]
         }
+      })
 
-    }, [roomId, user?.id])
+      setTitle(databaseRoom.title)
+      setQuestions(parsedQuestions)
+    })
 
-    return { questions, title }
+    return () => {
+      roomRef.off('value')
+    }
+  },[roomId, user?.id])
+
+  return { questions, title }
 }
-
-// Some -> find or not and return a boolean
