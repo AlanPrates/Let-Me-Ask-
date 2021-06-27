@@ -1,4 +1,45 @@
 .button {
+<<<<<<< HEAD
+        height:50px;
+        border-radius: 8px;
+        font-weight: 500;
+        background: #835afd;
+        color: #fff;
+        padding: 0 32px;
+        display: flex;
+        justify-content:center;
+        align-items: center;
+        cursor: pointer;
+        border: 0;
+        transition: filter 0.2s;
+        @media (max-width: 600px) {
+            width: 100%;
+        }
+        img{
+            margin-right: 8px;
+        }
+
+        &.dark{
+            background: #000;
+            border: 1px solid #835afd;
+            color: #835afd;
+        }
+        &.light{
+            background: #fff;
+            border: 1px solid #835afd;
+            color: #835afd;
+        }
+
+        &:not(:disabled):hover{
+            filter: brightness(0.9);
+        }
+        &:disabled{
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+}
+=======
   height: 50px;
   border-radius: 8px;
   font-weight: 500;
@@ -34,3 +75,4 @@
     cursor: not-allowed;
   }
 }
+>>>>>>> 9c62c098d40220c2ada32825a8affbb0307421c9
